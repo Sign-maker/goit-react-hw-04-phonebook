@@ -1,55 +1,61 @@
-import React, { Component } from 'react';
 import { nanoid } from 'nanoid';
 import { Button, Form, Input, Label } from './ContactForm.styled';
+import { useState, useRef } from 'react';
 
-export class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
-  nameInputId = nanoid();
-  telInputId = nanoid();
+export const ContactForm = ({ onSubmit }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  inputHandler = event => {
+  const { current: nameInputId } = useRef(nanoid());
+  const { current: telInputId } = useRef(nanoid());
+
+  const inputHandler = event => {
     const { name, value } = event.target;
-    this.setState({ [name]: value });
+
+    switch (name) {
+      case 'name':
+        setName(value.trimStart());
+        break;
+      case 'number':
+        setNumber(value.trimStart());
+        break;
+      default:
+        return;
+    }
   };
 
-  onSubmitHandler = event => {
+  const onSubmitHandler = event => {
     event.preventDefault();
-    const { name, number } = this.state;
-    this.props.onSubmit({ name: name.trim(), number: number.trim() });
-    this.setState({ name: '', number: '' });
+    onSubmit({ name: name.trimEnd(), number: number.trimEnd() });
+    setName('');
+    setNumber('');
   };
 
-  render() {
-    const { name, number } = this.state;
-    return (
-      <Form onSubmit={this.onSubmitHandler}>
-        <Label htmlFor={this.nameInputId}>Name</Label>
-        <Input
-          id={this.nameInputId}
-          placeholder="Vasyl Pupkin"
-          type="text"
-          name="name"
-          value={name}
-          onChange={this.inputHandler}
-          required
-        />
-        <Label htmlFor={this.telInputId}>Number</Label>
-        <Input
-          id={this.telInputId}
-          placeholder="999111999"
-          type="tel"
-          name="number"
-          value={number}
-          onChange={this.inputHandler}
-          required
-        />
-        <Button type="submit" disabled={!(name && number)}>
-          Add contact
-        </Button>
-      </Form>
-    );
-  }
-}
+  return (
+    <Form onSubmit={onSubmitHandler}>
+      <Label htmlFor={nameInputId}>Name</Label>
+      <Input
+        id={nameInputId}
+        placeholder="Vasyl Pupkin"
+        type="text"
+        name="name"
+        value={name}
+        onChange={inputHandler}
+        required
+      />
+      <Label htmlFor={telInputId}>Number</Label>
+      <Input
+        id={telInputId}
+        placeholder="999111999"
+        type="tel"
+        name="number"
+        value={number}
+        onChange={inputHandler}
+        required
+      />
+      <Button type="submit" disabled={!(name && number)}>
+        Add contact
+      </Button>
+    </Form>
+  );
+};
